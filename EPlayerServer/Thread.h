@@ -88,6 +88,58 @@ public:
 	bool isValid()const { return m_thread == 0; }
 
 private:
+	//__stdcall
+	static void* ThreadEntry(void* arg) {
+		CThread* thiz = (CThread*)arg;
+		struct sigaction act = { 0 };
+		sigemptyset(&act.sa_mask);
+		act.sa_flags = SA_SIGINFO;
+		act.sa_sigaction = &CThread::Sigaction;
+		sigaction(SIGUSR1, &act, NULL);
+		sigaction(SIGUSR2, &act, NULL);
+
+		thiz->EnterThread();
+
+		if (thiz->m_thread)thiz->m_thread = 0;
+		pthread_t thread = pthread_self();//不是冗余，有可能被stop函数把m_thread给清零了
+		auto it = m_mapThread.find(thread);
+		if (it != m_mapThread.end())
+			m_mapThread[thread] = NULL;
+		pthread_detach(thread);
+		pthread_exit(NULL);
+	}
+
+	static void Sigaction(int signo, siginfo_t* info, void* context)
+	{
+		if (signo == SIGUSR1) {
+			pthread_t thread = pthread_self();
+			auto it = m_mapThread.find(thread);
+			if (it != m_mapThread.end()) {
+				if (it->second) {
+					while (it->second->m_bpaused) {
+						if (it->second->m_thread == 0) {
+							pthread_exit(NULL);
+						}
+						usleep(1000);//1ms
+					}
+				}
+			}
+		}
+		else if (signo == SIGUSR2) {//线程退出
+			pthread_exit(NULL);
+		}
+	}
+
+	void EnterThread() {//__thiscall
+		if (m_function != NULL) {
+			int ret = (*m_function)();
+			if (ret != 0) {
+				printf("%s(%d):[%s]ret = %d\n", __FILE__, __LINE__, __FUNCTION__);
+			}
+		}
+	}
+
+private:
 	CFunctionBase* m_function;
 	pthread_t m_thread;
 	bool m_bpaused;//true 表示暂停 false表示运行中
