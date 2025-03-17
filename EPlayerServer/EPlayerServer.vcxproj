@@ -74,6 +74,10 @@
   <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ProjectPublicIncludePath>
+    </ProjectPublicIncludePath>
+  </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="Epoll.cpp" />
     <ClCompile Include="main.cpp" />
@@ -82,10 +86,11 @@
     <ClInclude Include="Epoll.h" />
     <ClInclude Include="Function.h" />
     <ClInclude Include="Process.h" />
+    <ClInclude Include="Socket.h" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;%(AdditionalIncludeDirectories);/</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
