@@ -12,6 +12,8 @@ class Buffer :public std::string
 public:
 	Buffer() :std::string() {}
 	Buffer(size_t size) : std::string() { resize(size); }
+	Buffer(const std::string& str) : std::string(str) {}
+	Buffer(const char* str) : std::string(str) {}
 	operator char* () { return (char*)c_str(); }
 	operator char* () const { return (char*)c_str(); }
 	operator const char* () const { return c_str(); }
@@ -113,7 +115,11 @@ public:
 			m_socket = -1;
 			close(fd);
 		}
+		return 0;
 	};
+
+	virtual operator int() { return m_socket; }
+	virtual operator int() const { return m_socket; }
 
 protected:
 	// Ì×½Ó×ÖÃèÊö·û Ä¬ÈÏ-1
@@ -127,6 +133,7 @@ protected:
 class CLocalSocket
 	:public CSocketBase
 {
+public:
 	CLocalSocket() :CSocketBase() {}
 	CLocalSocket(int sock) :CSocketBase() {
 		m_socket = sock;

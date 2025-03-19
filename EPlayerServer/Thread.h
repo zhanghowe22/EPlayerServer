@@ -4,6 +4,8 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <map>
+#include <stdio.h>
+#include <errno.h>
 #include "Function.h"
 
 class CThread
