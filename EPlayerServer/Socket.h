@@ -11,21 +11,19 @@ class Buffer :public std::string
 {
 public:
 	Buffer() :std::string() {}
-	Buffer(size_t size) : std::string() { resize(size); }
-	Buffer(const std::string& str) : std::string(str) {}
-	Buffer(const char* str) : std::string(str) {}
+	Buffer(size_t size) :std::string() { resize(size); }
+	Buffer(const std::string& str) :std::string(str) {}
+	Buffer(const char* str) :std::string(str) {}
 	operator char* () { return (char*)c_str(); }
 	operator char* () const { return (char*)c_str(); }
 	operator const char* () const { return c_str(); }
 };
 
-enum SockAttr
-{
-	SOCK_ISSERVER = 1, // 是否为服务器 1表示是 0表示客户端
-	SOCK_ISNONBLOCK = 2, // 是否阻塞 1表示非阻塞 0表示阻塞
-	SOCK_ISUDP = 4, // 是否为UDP 1表示udp 0表示tcp
+enum SockAttr {
+	SOCK_ISSERVER = 1,//是否服务器 1表示是 0表示客户端
+	SOCK_ISNONBLOCK = 2,//是否阻塞 1表示非阻塞 0表示阻塞
+	SOCK_ISUDP = 4,//是否为UDP 1表示udp 0表示tcp
 };
-
 
 class CSockParam {
 public:
@@ -33,11 +31,9 @@ public:
 		bzero(&addr_in, sizeof(addr_in));
 		bzero(&addr_un, sizeof(addr_un));
 		port = -1;
-		attr = 0; // 默认是客户端，阻塞，tcp
+		attr = 0;//默认是客户端、阻塞、tcp
 	}
-
-	CSockParam(const Buffer& ip, short port, int attr)
-	{
+	CSockParam(const Buffer& ip, short port, int attr) {
 		this->ip = ip;
 		this->port = port;
 		this->attr = attr;
@@ -45,16 +41,13 @@ public:
 		addr_in.sin_port = port;
 		addr_in.sin_addr.s_addr = inet_addr(ip);
 	}
-
 	CSockParam(const Buffer& path, int attr) {
 		ip = path;
 		addr_un.sun_family = AF_UNIX;
 		strcpy(addr_un.sun_path, path);
 		this->attr = attr;
 	}
-
 	~CSockParam() {}
-
 	CSockParam(const CSockParam& param) {
 		ip = param.ip;
 		port = param.port;
@@ -62,7 +55,7 @@ public:
 		memcpy(&addr_in, &param.addr_in, sizeof(addr_in));
 		memcpy(&addr_un, &param.addr_un, sizeof(addr_un));
 	}
-
+public:
 	CSockParam& operator=(const CSockParam& param) {
 		if (this != &param) {
 			ip = param.ip;
@@ -73,18 +66,17 @@ public:
 		}
 		return *this;
 	}
-
 	sockaddr* addrin() { return (sockaddr*)&addr_in; }
 	sockaddr* addrun() { return (sockaddr*)&addr_un; }
 public:
-	// 地址
+	//地址
 	sockaddr_in addr_in;
 	sockaddr_un addr_un;
-	// ip
+	//ip
 	Buffer ip;
-	// 端口
+	//端口
 	short port;
-	// 参考SockAttr
+	//参考SockAttr
 	int attr;
 };
 
@@ -93,17 +85,18 @@ class CSocketBase
 public:
 	CSocketBase() {
 		m_socket = -1;
-		m_status = 0;
+		m_status = 0;//初始化未完成
 	}
+	//传递析构操作
 	virtual ~CSocketBase() {
 		Close();
 	}
-
-	// 初始化 服务器套接字创建、bind、listen 客户端套接字创建
+public:
+	//初始化 服务器 套接字创建、bind、listen  客户端 套接字创建
 	virtual int Init(const CSockParam& param) = 0;
-	// 连接 服务器accept 客户端connect 对于udp这里可以忽略
+	//连接 服务器 accept 客户端 connect  对于udp这里可以忽略
 	virtual int Link(CSocketBase** pClient = NULL) = 0;
-	// 发送数据
+	//发送数据
 	virtual int Send(const Buffer& data) = 0;
 	//接收数据
 	virtual int Recv(Buffer& data) = 0;
@@ -111,22 +104,21 @@ public:
 	virtual int Close() {
 		m_status = 3;
 		if (m_socket != -1) {
+			unlink(m_param.ip);
 			int fd = m_socket;
 			m_socket = -1;
 			close(fd);
 		}
 		return 0;
 	};
-
 	virtual operator int() { return m_socket; }
-	virtual operator int() const { return m_socket; }
-
+	virtual operator int()const { return m_socket; }
 protected:
-	// 套接字描述符 默认-1
+	//套接字描述符，默认是-1
 	int m_socket;
-	// 状态 0初始化未完成 1初始化完成 2连接完成 3已经关闭
+	//状态 0初始化未完成 1初始化完成 2连接完成 3已经关闭
 	int m_status;
-	// 初始化参数
+	//初始化参数
 	CSockParam m_param;
 };
 
@@ -138,11 +130,10 @@ public:
 	CLocalSocket(int sock) :CSocketBase() {
 		m_socket = sock;
 	}
-
+	//传递析构操作
 	virtual ~CLocalSocket() {
 		Close();
 	}
-
 public:
 	//初始化 服务器 套接字创建、bind、listen  客户端 套接字创建
 	virtual int Init(const CSockParam& param) {
@@ -151,6 +142,8 @@ public:
 		int type = (m_param.attr & SOCK_ISUDP) ? SOCK_DGRAM : SOCK_STREAM;
 		if (m_socket == -1)
 			m_socket = socket(PF_LOCAL, type, 0);
+		else
+			m_status = 2;//accept来的套接字，已经处于连接状态
 		if (m_socket == -1)return -2;
 		int ret = 0;
 		if (m_param.attr & SOCK_ISSERVER) {
@@ -166,10 +159,10 @@ public:
 			ret = fcntl(m_socket, F_SETFL, option);
 			if (ret == -1)return -6;
 		}
-		m_status = 1;
+		if (m_status == 0)
+			m_status = 1;
 		return 0;
 	}
-
 	//连接 服务器 accept 客户端 connect  对于udp这里可以忽略
 	virtual int Link(CSocketBase** pClient = NULL) {
 		if (m_status <= 0 || (m_socket == -1))return -1;
@@ -196,7 +189,6 @@ public:
 		m_status = 2;
 		return 0;
 	}
-
 	//发送数据
 	virtual int Send(const Buffer& data) {
 		if (m_status < 2 || (m_socket == -1))return -1;
