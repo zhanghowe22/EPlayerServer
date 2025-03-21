@@ -7,7 +7,7 @@
 #include <fcntl.h>
 #include <signal.h>
 
-// 管理进程的创建和入口函数的设置
+// 进程类 管理进程的创建和入口函数的设置
 class CProcess
 {
 public:

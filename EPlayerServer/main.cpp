@@ -41,7 +41,7 @@ int CreateClientServer(CProcess* proc)
 
 int LogTest()
 {
-	char buffer[] = "hello edoyun! 冯老师";
+	char buffer[] = "hello edoyun! 呵呵呵";
 	usleep(1000 * 100);
 	TRACEI("here is log %d %c %f %g %s 哈哈 嘻嘻 易道云", 10, 'A', 1.0f, 2.0, buffer);
 	DUMPD((void*)buffer, (size_t)sizeof(buffer));
@@ -102,3 +102,7 @@ int main()
 	(void)getchar();
 	return 0;
 }
+
+// Socket.h CServer.h CServer.cpp
+// EdoyunPlayrtServer.h
+// 
