@@ -4,6 +4,9 @@
 #include "ThreadPool.h"
 #include "Process.h"
 
+/* 回调包装类
+* 将用户指定的函数（含参数）封装为统一接口 CFunctionBase，用于回调执行。
+*/
 template<typename _FUNCTION_, typename... _ARGS_>
 class CConnectedFunction :public CFunctionBase
 {
@@ -32,6 +35,12 @@ public:
 	typename std::_Bindres_helper<int, _FUNCTION_, _ARGS_...>::type m_binder;
 };
 
+/* 业务逻辑抽象基类
+* 定义业务处理接口，支持设置两类回调：
+* 连接回调（m_connectedcallback）：客户端连接时触发。
+* 数据接收回调（m_recvcallback）：收到客户端数据时触发
+* 通过模板方法 setConnectedCallback 和 setRecvCallback 绑定任意函数
+*/
 class CBusiness
 {
 public:
@@ -56,6 +65,7 @@ protected:
 	CFunctionBase* m_recvcallback;
 };
 
+// 管理服务端Socket、Epoll事件循环、线程池和子进程
 class CServer
 {
 public:
@@ -70,10 +80,10 @@ public:
 private:
 	int ThreadFunc();
 private:
-	CThreadPool m_pool;
-	CSocketBase* m_server;
-	CEpoll m_epoll;
-	CProcess m_process;
-	CBusiness* m_business;//业务模块 需要我们手动delete
+	CThreadPool m_pool; // 线程池，处理连接和任务
+	CSocketBase* m_server; // 服务端Socket，监听客户端连接
+	CEpoll m_epoll; // Epoll实例，监听Socket事件
+	CProcess m_process; // 子进程管理器，用于业务处理
+	CBusiness* m_business;// 业务逻辑回调接口
 };
 

@@ -25,18 +25,26 @@ public:
 	CThreadPool(const CThreadPool&) = delete;
 	CThreadPool& operator=(const CThreadPool&) = delete;
 public:
+	// 启动线程池,count为指定的线程数量
 	int Start(unsigned count) {
 		int ret = 0;
+
 		if (m_server != NULL)return -1;//已经初始化了
+
 		if (m_path.size() == 0)return -2;//构造函数失败！！！
+
 		m_server = new CSocket();
 		if (m_server == NULL)return -3;
+
 		ret = m_server->Init(CSockParam(m_path, SOCK_ISSERVER));
 		if (ret != 0)return -4;
+
 		ret = m_epoll.Create(count);
 		if (ret != 0)return -5;
+
 		ret = m_epoll.Add(*m_server, EpollData((void*)m_server));
 		if (ret != 0)return -6;
+
 		m_threads.resize(count);
 		for (unsigned i = 0; i < count; i++) {
 			m_threads[i] = new CThread(&CThreadPool::TaskDispatch, this);
@@ -46,6 +54,7 @@ public:
 		}
 		return 0;
 	}
+	// 关闭线程池，释放资源
 	void Close() {
 		m_epoll.Close();
 		if (m_server) {
@@ -60,6 +69,8 @@ public:
 		m_threads.clear();
 		unlink(m_path);
 	}
+
+	// 添加任务(模版方法，支持任意函数类型和参数)
 	template<typename _FUNCTION_, typename... _ARGS_>
 	int AddTask(_FUNCTION_ func, _ARGS_... args) {
 		static thread_local CSocket client;
@@ -131,5 +142,5 @@ private:
 	CEpoll m_epoll;
 	std::vector<CThread*> m_threads;
 	CSocketBase* m_server;
-	Buffer m_path;
+	Buffer m_path; // 生成的.sock文件，实现进程间通信
 };

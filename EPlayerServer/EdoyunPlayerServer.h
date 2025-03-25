@@ -31,10 +31,13 @@ public:
 	virtual int BusinessProcess(CProcess* proc) {
 		using namespace std::placeholders;
 		int ret = 0;
+		// 设置连接/数据回调（setConnectedCallback 和 setRecvCallback）
 		ret = setConnectedCallback(&CEdoyunPlayerServer::Connected, this, _1);
 		ERR_RETURN(ret, -1);
 		ret = setRecvCallback(&CEdoyunPlayerServer::Received, this, _1, _2);
 		ERR_RETURN(ret, -2);
+
+		// 初始化 Epoll 和线程池
 		ret = m_epoll.Create(m_count);
 		ERR_RETURN(ret, -1);
 		ret = m_pool.Start(m_count);
@@ -43,6 +46,8 @@ public:
 			ret = m_pool.AddTask(&CEdoyunPlayerServer::ThreadFunc, this);
 			ERR_RETURN(ret, -3);
 		}
+
+		// 循环接收主进程传递的客户端Socket
 		int sock = 0;
 		sockaddr_in addrin;
 		while (m_epoll != -1) {
@@ -97,8 +102,8 @@ private:
 		return 0;
 	}
 private:
-	CEpoll m_epoll;
-	std::map<int, CSocketBase*> m_mapClients;
-	CThreadPool m_pool;
-	unsigned m_count;
+	CEpoll m_epoll; // 监听客户端Socket的事件
+	std::map<int, CSocketBase*> m_mapClients; // 存储客户端Socket的映射表<fd, CSocketBase*>，用于管理连接状态
+	CThreadPool m_pool; // 线程池，处理客户端数据的接收和回调执行
+	unsigned m_count; // 线程池的大小（线程数）
 };
