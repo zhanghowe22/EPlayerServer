@@ -29,20 +29,14 @@ public:
 		int ret = 0;
 		if (m_server != NULL)return -1;//已经初始化了
 		if (m_path.size() == 0)return -2;//构造函数失败！！！
-
-		// 创建并初始化本地套接字
-		m_server = new CLocalSocket();
+		m_server = new CSocket();
 		if (m_server == NULL)return -3;
 		ret = m_server->Init(CSockParam(m_path, SOCK_ISSERVER));
 		if (ret != 0)return -4;
-
-		// 创建m_epoll事件监听器
 		ret = m_epoll.Create(count);
 		if (ret != 0)return -5;
 		ret = m_epoll.Add(*m_server, EpollData((void*)m_server));
 		if (ret != 0)return -6;
-
-		// 创建指定数量的线程，存放在vector中
 		m_threads.resize(count);
 		for (unsigned i = 0; i < count; i++) {
 			m_threads[i] = new CThread(&CThreadPool::TaskDispatch, this);
@@ -66,12 +60,9 @@ public:
 		m_threads.clear();
 		unlink(m_path);
 	}
-
-	// 向线程池中添加任务
 	template<typename _FUNCTION_, typename... _ARGS_>
 	int AddTask(_FUNCTION_ func, _ARGS_... args) {
-		// 使用本地socket客户端将任务发送到线程池
-		static thread_local CLocalSocket client;
+		static thread_local CSocket client;
 		int ret = 0;
 		if (client == -1) {
 			ret = client.Init(CSockParam(m_path, 0));
@@ -79,7 +70,6 @@ public:
 			ret = client.Link();
 			if (ret != 0)return -2;
 		}
-		// 任务被封装为CFunctionBase对象
 		CFunctionBase* base = new CFunction< _FUNCTION_, _ARGS_...>(func, args...);
 		if (base == NULL)return -3;
 		Buffer data(sizeof(base));
@@ -91,6 +81,8 @@ public:
 		}
 		return 0;
 	}
+
+	size_t Size()const { return m_threads.size(); }
 private:
 	int TaskDispatch() {
 		while (m_epoll != -1) {

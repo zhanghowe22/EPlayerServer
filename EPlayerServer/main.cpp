@@ -1,7 +1,4 @@
-﻿#include <cstdio>
-#include "Logger.h"
-#include "Process.h"
-#include "ThreadPool.h"
+﻿#include "EdoyunPlayerServer.h"
 
 int CreateLogServer(CProcess* proc)
 {
@@ -41,7 +38,7 @@ int CreateClientServer(CProcess* proc)
 
 int LogTest()
 {
-	char buffer[] = "hello edoyun! 呵呵呵";
+	char buffer[] = "hello edoyun! 冯老师";
 	usleep(1000 * 100);
 	TRACEI("here is log %d %c %f %g %s 哈哈 嘻嘻 易道云", 10, 'A', 1.0f, 2.0, buffer);
 	DUMPD((void*)buffer, (size_t)sizeof(buffer));
@@ -49,7 +46,7 @@ int LogTest()
 	return 0;
 }
 
-int main()
+int old_test()
 {
 	//CProcess::SwitchDeamon();
 	CProcess proclog, procclients;
@@ -103,6 +100,19 @@ int main()
 	return 0;
 }
 
-// Socket.h CServer.h CServer.cpp
-// EdoyunPlayrtServer.h
-// 
+int main()
+{
+	int ret = 0;
+	CProcess proclog;
+	ret = proclog.SetEntryFunction(CreateLogServer, &proclog);
+	ERR_RETURN(ret, -1);
+	ret = proclog.CreateSubProcess();
+	ERR_RETURN(ret, -2);
+	CEdoyunPlayerServer business(2);
+	CServer server;
+	ret = server.Init(&business);
+	ERR_RETURN(ret, -3);
+	ret = server.Run();
+	ERR_RETURN(ret, -4);
+	return 0;
+}
