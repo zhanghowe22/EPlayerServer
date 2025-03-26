@@ -2,7 +2,6 @@
 #include <map>
 #include "Socket.h"
 #include "http_parser.h"
-#include <cstddef>
 
 // Http解析 将C库封装为C++类
 class CHttpParser
@@ -37,7 +36,7 @@ public:
 
 	const Buffer& Body() const { return m_body; }
 
-	unsigned Errno() const { m_parser.http_errno; }
+	unsigned Errno() const { return m_parser.http_errno; }
 
 protected:
 	// 这种设计模式是 C 风格回调与 C++ 类对象交互 的常见解决方案

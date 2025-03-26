@@ -41,7 +41,7 @@ size_t CHttpParser::Parser(const Buffer& data)
 	return ret;
 }
 
-CHttpParser::CHttpParser& CHttpParser::operator=(const CHttpParser& http)
+CHttpParser& CHttpParser::operator=(const CHttpParser& http)
 {
 	if (this != &http) {
 		memcpy(&m_parser, &http.m_parser, sizeof(m_parser));
@@ -172,7 +172,7 @@ int UrlParser::Parser()
 	target = strchr(value, ':');
 	if (target != NULL) {
 		m_host = Buffer(pos, target);
-		m_port = atoi(Buffer(target + 1, pos + value.size()));
+		m_port = atoi(Buffer(target + 1, (char*)value + value.size()));
 	}
 	else {
 		m_host = value;
