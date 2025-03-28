@@ -1,6 +1,6 @@
 #pragma once
 #include <map>
-#include "Socket.h"
+#include "Public.h"
 #include "http_parser.h"
 
 // Http解析 将C库封装为C++类
