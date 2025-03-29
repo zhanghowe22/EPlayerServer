@@ -54,11 +54,13 @@ public:
 	CLoggerServer() :
 		m_thread(&CLoggerServer::ThreadFunc, this)
 	{
+		// 创建工作线程
+		// 构造基于时间的日志文件名
 		m_server = NULL;
 		char curpath[256] = "";
 		getcwd(curpath, sizeof(curpath));
 		m_path = curpath;
-		m_path += "/log/" + GetTimeStr() + ".log";
+		m_path += "/log/" + GetTimeStr() + ".log"; // 创建日志文件
 		printf("%s(%d):[%s]path=%s\n", __FILE__, __LINE__, __FUNCTION__, (char*)m_path);
 	}
 	~CLoggerServer() {
@@ -71,13 +73,18 @@ public:
 	//日志服务器的启动
 	int Start() {
 		if (m_server != NULL)return -1;
+		// 检查日志目录
 		if (access("log", W_OK | R_OK) != 0) {
 			mkdir("log", S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
 		}
+		// 打开日志文件
 		m_file = fopen(m_path, "w+");
 		if (m_file == NULL)return -2;
+		// 创建epoll实例
 		int ret = m_epoll.Create(1);
 		if (ret != 0)return -3;
+
+		// 创建本地socket并初始化
 		m_server = new CSocket();
 		if (m_server == NULL) {
 			Close();
@@ -88,11 +95,13 @@ public:
 			Close();
 			return -5;
 		}
+		// 添加epoll事件
 		ret = m_epoll.Add(*m_server, EpollData((void*)m_server), EPOLLIN | EPOLLERR);
 		if (ret != 0) {
 			Close();
 			return -6;
 		}
+		// 启动工作线程
 		ret = m_thread.Start();
 		if (ret != 0) {
 			printf("%s(%d):<%s> pid=%d errno:%d msg:%s ret:%d\n",
@@ -102,6 +111,7 @@ public:
 		}
 		return 0;
 	}
+	// 日志服务器关闭
 	int Close() {
 		if (m_server != NULL) {
 			CSocketBase* p = m_server;
@@ -112,7 +122,7 @@ public:
 		m_thread.Stop();
 		return 0;
 	}
-	//给其他非日志进程的进程和线程使用的
+	//给其他非日志进程的进程和线程使用的 客户端接口
 	static void Trace(const LogInfo& info) {
 		int ret = 0;
 		static thread_local CSocket client;
@@ -132,6 +142,7 @@ public:
 		ret = client.Send(info);
 		printf("%s(%d):[%s]ret=%d client=%d\n", __FILE__, __LINE__, __FUNCTION__, ret, (int)client);
 	}
+	// 时间格式化
 	static Buffer GetTimeStr() {
 		Buffer result(128);
 		timeb tmb;
@@ -147,12 +158,14 @@ public:
 		return result;
 	}
 private:
+	// 线程函数
 	int ThreadFunc() {
 		printf("%s(%d):[%s] %d\n", __FILE__, __LINE__, __FUNCTION__, m_thread.isValid());
 		printf("%s(%d):[%s] %d\n", __FILE__, __LINE__, __FUNCTION__, (int)m_epoll);
 		printf("%s(%d):[%s] %p\n", __FILE__, __LINE__, __FUNCTION__, m_server);
 		EPEvents events;
 		std::map<int, CSocketBase*> mapClients;
+
 		while (m_thread.isValid() && (m_epoll != -1) && (m_server != NULL)) {
 			ssize_t ret = m_epoll.WaitEvents(events, 1);
 			//printf("%s(%d):[%s] %d\n", __FILE__, __LINE__, __FUNCTION__, ret);
@@ -164,8 +177,9 @@ private:
 						break;
 					}
 					else if (events[i].events & EPOLLIN) {
-						if (events[i].data.ptr == m_server) {
+						if (events[i].data.ptr == m_server) { // 新连接
 							CSocketBase* pClient = NULL;
+							// 接收连接并加入epoll
 							int r = m_server->Link(&pClient);
 							printf("%s(%d):[%s]ret=%d \n", __FILE__, __LINE__, __FUNCTION__, r);
 							if (r < 0) continue;
@@ -174,7 +188,7 @@ private:
 							if (r < 0) {
 								delete pClient;
 								continue;
-							}
+							}			
 							auto it = mapClients.find(*pClient);
 							if (it != mapClients.end()) {//it->second != NULL
 								if (it->second)delete it->second;//delete it->second;
@@ -182,10 +196,11 @@ private:
 							mapClients[*pClient] = pClient;
 							printf("%s(%d):[%s]ret=%d \n", __FILE__, __LINE__, __FUNCTION__, r);
 						}
-						else {
+						else { // 数据到达
 							printf("%s(%d):[%s]ptr=%p \n", __FILE__, __LINE__, __FUNCTION__, events[i].data.ptr);
 							CSocketBase* pClient = (CSocketBase*)events[i].data.ptr;
 							if (pClient != NULL) {
+								// 接收数据并写入日志
 								Buffer data(1024 * 1024);
 								int r = pClient->Recv(data);
 								//printf("%s(%d):[%s]ret=%d \n", __FILE__, __LINE__, __FUNCTION__, r);
@@ -216,6 +231,7 @@ private:
 		mapClients.clear();
 		return 0;
 	}
+	// 写日志实现
 	void WriteLog(const Buffer& data) {
 		if (m_file != NULL) {
 			FILE* pFile = m_file;
@@ -227,11 +243,11 @@ private:
 		}
 	}
 private:
-	CThread m_thread;
-	CEpoll m_epoll;
-	CSocketBase* m_server;
-	Buffer m_path;
-	FILE* m_file;
+	CThread m_thread;  // 工作线程
+	CEpoll m_epoll; // epoll事件管理器
+	CSocketBase* m_server; // 服务器socket
+	Buffer m_path; // 日志文件路径
+	FILE* m_file; // 日志文件指针
 };
 
 #ifndef TRACE
