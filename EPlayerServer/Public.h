@@ -1,5 +1,7 @@
 #pragma once
 #include <string>
+#include <string.h>
+
 class Buffer :public std::string
 {
 public:

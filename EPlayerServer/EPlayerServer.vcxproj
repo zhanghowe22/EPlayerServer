@@ -89,6 +89,8 @@
     </ClCompile>
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Sqlite3Client.cpp" />
+    <ClCompile Include="sqlite3\sqlite3.c" />
     <ClCompile Include="Thread.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -103,6 +105,9 @@
     <ClInclude Include="Process.h" />
     <ClInclude Include="Public.h" />
     <ClInclude Include="Socket.h" />
+    <ClInclude Include="Sqlite3Client.h" />
+    <ClInclude Include="sqlite3\sqlite3.h" />
+    <ClInclude Include="sqlite3\sqlite3ext.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="ThreadPool.h" />
   </ItemGroup>
@@ -112,7 +117,7 @@
       <PreprocessorDefinitions>_DEBUG</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <LibraryDependencies>pthread;m;</LibraryDependencies>
+      <LibraryDependencies>pthread;m;dl;</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
