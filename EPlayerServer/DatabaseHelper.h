@@ -144,7 +144,7 @@ public:
 
 public:
 	// ²Ù×÷Ìõ¼þ
-	unsigned condition;
+	unsigned Condition;
 };
 
 #define DECLARE_TABLE_CLASS(name, base) class name:public base { \
