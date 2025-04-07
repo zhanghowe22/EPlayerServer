@@ -89,6 +89,7 @@
     </ClCompile>
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MysqlClient.cpp" />
     <ClCompile Include="Sqlite3Client.cpp" />
     <ClCompile Include="sqlite3\sqlite3.c" />
     <ClCompile Include="Thread.cpp" />
@@ -102,6 +103,7 @@
     <ClInclude Include="HttpParser.h" />
     <ClInclude Include="http_parser.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="MysqlClient.h" />
     <ClInclude Include="Process.h" />
     <ClInclude Include="Public.h" />
     <ClInclude Include="Socket.h" />
@@ -117,7 +119,7 @@
       <PreprocessorDefinitions>_DEBUG</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <LibraryDependencies>pthread;m;dl;</LibraryDependencies>
+      <LibraryDependencies>pthread;m;dl;mysqlclient</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
