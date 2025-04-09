@@ -28,10 +28,3 @@ public:
 	operator const char* () const { return c_str(); }
 	operator const void* () const { return c_str(); }
 };
-
-enum SockAttr {
-	SOCK_ISSERVER = 1,//是否服务器 1表示是 0表示客户端
-	SOCK_ISNONBLOCK = 2,//是否阻塞 1表示非阻塞 0表示阻塞
-	SOCK_ISUDP = 4,//是否为UDP 1表示udp 0表示tcp
-	SOCK_ISIP = 8,//是否为IP协议 1表示IP协议 0表示本地套接字
-};
