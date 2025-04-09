@@ -306,15 +306,29 @@ int mysql_test()
 	return 0;
 }
 
+#include "Crypto.h"
+int crypto_test()
+{
+	Buffer data = "abcdef";
+	data = Crypto::MD5(data);
+	printf("except E80B5017098950FC58AAD83C8C14978E %s\n", (char*)data);
+	return 0;
+}
+
 int main()
 {
 	int ret = 0;
 	//int ret = http_test();
 	//ret = sql_test();
-	ret = mysql_test();
+	//ret = mysql_test();
+	//ret = crypto_test();
+	ret = Main();
 	printf("main:ret = %d\n", ret);
 	return ret;
 }
+
+
+
 
 
 

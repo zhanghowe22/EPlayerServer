@@ -13,6 +13,17 @@
     <ClCompile Include="sqlite3\sqlite3.c">
       <Filter>sqlite3</Filter>
     </ClCompile>
+    <ClCompile Include="MysqlClient.cpp" />
+    <ClCompile Include="Crypto.cpp" />
+    <ClCompile Include="jsoncpp\json_reader.cpp">
+      <Filter>jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="jsoncpp\json_value.cpp">
+      <Filter>jsoncpp</Filter>
+    </ClCompile>
+    <ClCompile Include="jsoncpp\json_writer.cpp">
+      <Filter>jsoncpp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CServer.h" />
@@ -35,10 +46,53 @@
     <ClInclude Include="sqlite3\sqlite3ext.h">
       <Filter>sqlite3</Filter>
     </ClInclude>
+    <ClInclude Include="MysqlClient.h" />
+    <ClInclude Include="Crypto.h" />
+    <ClInclude Include="jsoncpp\allocator.h">
+      <Filter>jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="jsoncpp\assertions.h">
+      <Filter>jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="jsoncpp\config.h">
+      <Filter>jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="jsoncpp\forwards.h">
+      <Filter>jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="jsoncpp\json.h">
+      <Filter>jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="jsoncpp\json_features.h">
+      <Filter>jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="jsoncpp\json_tool.h">
+      <Filter>jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="jsoncpp\reader.h">
+      <Filter>jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="jsoncpp\value.h">
+      <Filter>jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="jsoncpp\version.h">
+      <Filter>jsoncpp</Filter>
+    </ClInclude>
+    <ClInclude Include="jsoncpp\writer.h">
+      <Filter>jsoncpp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="sqlite3">
       <UniqueIdentifier>{f0ebdb78-0183-43d0-a26d-6b0cea6078be}</UniqueIdentifier>
     </Filter>
+    <Filter Include="jsoncpp">
+      <UniqueIdentifier>{68aab4a5-9e60-4cc7-b5c7-f82ba2aa221d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="jsoncpp\json_valueiterator.inl">
+      <Filter>jsoncpp</Filter>
+    </None>
   </ItemGroup>
 </Project>
